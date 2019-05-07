@@ -1,0 +1,64 @@
+%% Mustelefon
+import java.awt.Robot
+import java.awt.event.InputEvent
+m=mobiledev;
+R=Robot;
+click=InputEvent.getMaskForButton(1); 
+
+%% Calibrate
+lastTime=clock;
+currentTime=clock;
+m.logging=1;
+m.AccelerationSensorEnabled=1;
+while (currentTime(5)*60)+currentTime(6)...
+        -(lastTime(5)*60+lastTime(6))<10
+    
+    currentTime=clock;
+end
+m.Logging=0;
+[a,t]=accellog(m);
+xAvg=mean(a(:,1));
+yAvg=mean(a(:,2));
+
+%% Mouse
+
+startX=1000;
+startY=500;
+R.mouseMove(startX,startY);
+lastTime=clock;
+currentTime=clock;
+dt=1/10;
+m.Logging=1;
+m.AccelerationSensorEnabled=1;
+m.AngularVelocitySensorEnabled=1;
+timer=0;
+while timer<60
+    currentTime=clock;
+    timer=(currentTime(5)*60)+currentTime(6)...
+        -(lastTime(5)*60+lastTime(6));
+    acc=m.Acceleration;
+    xAcc=acc(1)-xAvg;
+    yAcc=acc(2)-yAvg;
+    if abs(acc(1))<1
+        xAcc=0;
+    end
+    if abs(acc(2))<1
+        yAcc=0;
+    end
+    xvel=(xAcc)*dt;
+    yvel=(yAcc)*dt;
+    xdisp=-xvel*dt;
+    ydisp=yvel*dt;
+    newXPos=startX+(10*xdisp);
+    newYPos=startY+(10*ydisp);
+    startX=newXPos;
+    startY=newYPos;
+    R.mouseMove(newXPos,newYPos);
+    angVel=m.AngularVelocity;
+    if abs(angVel(3))>5
+        R.mousePress(click);
+        R.delay(10);
+        R.mouseRelease(click);
+    end
+    
+end
