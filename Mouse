@@ -27,7 +27,6 @@ startY=500;
 R.mouseMove(startX,startY);
 lastTime=clock;
 currentTime=clock;
-dt=1/10;
 m.Logging=1;
 m.AccelerationSensorEnabled=1;
 m.AngularVelocitySensorEnabled=1;
@@ -45,19 +44,15 @@ while timer<60
     if abs(acc(2))<1
         yAcc=0;
     end
-    xvel=(xAcc)*dt;
-    yvel=(yAcc)*dt;
-    xdisp=-xvel*dt;
-    ydisp=yvel*dt;
-    newXPos=startX+(10*xdisp);
-    newYPos=startY+(10*ydisp);
+    newXPos=startX-(0.08*xAcc);
+    newYPos=startY-(0.08*yAcc);
+    R.mouseMove(newXPos,newYPos);
     startX=newXPos;
     startY=newYPos;
-    R.mouseMove(newXPos,newYPos);
     angVel=m.AngularVelocity;
-    if abs(angVel(3))>5
+    if abs(angVel(3))>3
         R.mousePress(click);
-        R.delay(10);
+        R.delay(100);
         R.mouseRelease(click);
     end
     
